@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Happy Birthday</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="vanta-bg"></div>
+  <div class="flip-card">
+    <div class="flip-card-inner">
+      <div class="flip-card-front">
+        <h1>Hi Darling, Happy Birthday </h1>
+        <p>(click mo hehe)</p>
+      </div>
+      <div class="flip-card-back">
+        <h1>I miss you, Gala nga tayo sama ka? 💕</h1>
+        <p>(try mo muna click ung no)</p>
+        <div class="arrow">⬅️ Click Yes!</div>
+        <div class="buttons">
+          <button>Yes!</button>
+          <button>No</button>
+        </div>
+        <p class="message" style="display: none;">Sino ba nagsabi pwede ka humindi hehe</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>
+  <script src="script.js"></script>
+
+  <script>
+    VANTA.BIRDS({
+      el: "#vanta-bg",
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200,
+      minWidth: 200,
+      scale: 1,
+      scaleMobile: 1,
+      backgroundColor: 0xffc0cb,
+      color1: 0xc57676,
+      color2: 0x4cc1dc
+    });
+  </script>
+
+</body>
+</html>
