@@ -112,7 +112,7 @@ button {
 
 .vehicle-section {
   position: relative;
-  min-height: 200vh; /* Allow scrolling */
+  min-height: 200vh;
 }
 
 .vehicle {
@@ -134,7 +134,7 @@ button {
 .scroll-content {
   padding: 20px;
   text-align: center;
-  margin-top: 100vh; /* Push below the vehicle */
+  margin-top: 100vh;
 }
 
 .scroll-content p {
@@ -162,4 +162,67 @@ button {
   50% {
     transform: translateY(-50%) translateX(-15px);
   }
+}
+
+/* ── Dark cover ── */
+#cover {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: #ffc0cb;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* ── Final reveal ── */
+#reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease;
+}
+
+/* Pink car driving toward you */
+.car-emoji {
+  display: inline-block;
+  filter: sepia(1) saturate(3) hue-rotate(290deg) brightness(1.1);
+  animation: driveUp 2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+@keyframes driveUp {
+  0%   { font-size: 1em;   transform: translateY(60px); opacity: 0.3; }
+  60%  { font-size: 13em; transform: translateY(8px);  opacity: 1; }
+  78%  { font-size: 11.4em; transform: translateY(16px); } /* bounce back */
+  90%  { font-size: 12em;   transform: translateY(10px); } /* settle forward */
+  100% { font-size: 11.8em; transform: translateY(0px); } /* parked */
+}
+
+#reveal h2 {
+  font-size: 1.8em;
+  color: #5a1a2e;
+  text-shadow: 0 2px 8px rgba(255,255,255,0.8);
+  margin: 0;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 1.8s forwards;
+}
+
+#reveal p {
+  font-size: 1.1em;
+  color: #7a3050;
+  margin: 0;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 2.2s forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
