@@ -27,9 +27,7 @@ body {
   z-index: -1;
 }
 
-.box {
-  text-align: center;
-}
+.box { text-align: center; }
 
 .flip-card {
   background-color: transparent;
@@ -82,13 +80,9 @@ body {
   margin: 0 0 20px 0;
 }
 
-.flip-card-back {
-  transform: rotateY(180deg);
-}
+.flip-card-back { transform: rotateY(180deg); }
 
-.buttons {
-  margin-top: 20px;
-}
+.buttons { margin-top: 20px; }
 
 button {
   margin: 5px;
@@ -105,41 +99,9 @@ button {
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.1); }
   100% { transform: scale(1); }
-}
-
-.vehicle-section {
-  position: relative;
-  min-height: 200vh;
-}
-
-.vehicle {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 5em;
-  color: pink;
-  z-index: 5;
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
-  50% { transform: translate(-50%, -50%) translateY(-10px); }
-}
-
-.scroll-content {
-  padding: 20px;
-  text-align: center;
-  margin-top: 100vh;
-}
-
-.scroll-content p {
-  font-size: 1.2em;
-  margin: 20px 0;
 }
 
 .arrow {
@@ -156,12 +118,8 @@ button {
 }
 
 @keyframes bounce {
-  0%, 100% {
-    transform: translateY(-50%) translateX(0);
-  }
-  50% {
-    transform: translateY(-50%) translateX(-15px);
-  }
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50%       { transform: translateY(-50%) translateX(-15px); }
 }
 
 /* ── Dark cover ── */
@@ -173,6 +131,16 @@ button {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
+}
+
+/* ── Crash flash overlay ── */
+#crash-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* ── Final reveal ── */
@@ -190,7 +158,50 @@ button {
   transition: opacity 1.5s ease;
 }
 
-/* Pink car driving toward you */
+/* ──────────────────────────────────────────
+   🎛️  DRIVER IMAGE COORDINATES
+   ────────────────────────────────────────── */
+:root {
+  --driver-top: 30%;
+  --driver-left: 59%;
+  --driver-width: 20%;
+  --driver-offset: -50%;
+
+  --her-top: 32%;
+  --her-left: 40%;
+  --her-width: 18%;
+  --her-offset: -50%;
+
+  /* ✅ her-section position — tweak these to reposition her pic */
+  --hersection-top: 50%;
+  --hersection-right: 25%;
+}
+
+/* Wrapper handles Y movement */
+.car-wrapper {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  animation: wrapperRide 2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  transform-origin: center center;
+}
+
+.car-wrapper.charging {
+  transition: transform 3s cubic-bezier(0.2, 0, 0.8, 1),
+              opacity 0.5s ease 2.6s;
+  transform: scale(30) !important;
+  opacity: 0;
+}
+
+@keyframes wrapperRide {
+  0%   { transform: translateY(80px); opacity: 0; }
+  20%  { opacity: 1; }
+  60%  { transform: translateY(8px); }
+  78%  { transform: translateY(18px); }
+  90%  { transform: translateY(10px); }
+  100% { transform: translateY(0px); }
+}
+
 .car-emoji {
   display: inline-block;
   filter: sepia(1) saturate(3) hue-rotate(290deg) brightness(1.1);
@@ -198,31 +209,131 @@ button {
 }
 
 @keyframes driveUp {
-  0%   { font-size: 1em;   transform: translateY(60px); opacity: 0.3; }
-  60%  { font-size: 13em; transform: translateY(8px);  opacity: 1; }
-  78%  { font-size: 11.4em; transform: translateY(16px); } /* bounce back */
-  90%  { font-size: 12em;   transform: translateY(10px); } /* settle forward */
-  100% { font-size: 11.8em; transform: translateY(0px); } /* parked */
+  0%   { font-size: 1em;  }
+  60%  { font-size: 22em; }
+  78%  { font-size: 19em; }
+  90%  { font-size: 21em; }
+  100% { font-size: 20em; }
 }
 
-#reveal h2 {
-  font-size: 1.8em;
+.driver-img {
+  position: absolute;
+  top: var(--driver-top);
+  left: var(--driver-left);
+  transform: translateX(var(--driver-offset));
+  width: var(--driver-width);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  z-index: 2;
+  animation: driverAppear 2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+@keyframes driverAppear {
+  0%   { opacity: 0;  transform: translateX(var(--driver-offset)) scale(0.04); }
+  20%  { opacity: 1;  transform: translateX(var(--driver-offset)) scale(0.2);  }
+  60%  { opacity: 1;  transform: translateX(var(--driver-offset)) scale(1);    }
+  78%  {              transform: translateX(var(--driver-offset)) scale(0.88); }
+  90%  {              transform: translateX(var(--driver-offset)) scale(0.96); }
+  100% { opacity: 1;  transform: translateX(var(--driver-offset)) scale(0.93); }
+}
+
+.passenger-img {
+  position: absolute;
+  top: var(--her-top);
+  left: var(--her-left);
+  transform: translateX(var(--her-offset));
+  width: var(--her-width);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  z-index: 2;
+  opacity: 0;
+}
+
+/* ── Her invite section ── */
+/* ✅ NO animation here anymore — JS controls the timing */
+#her-section {
+  position: absolute;
+  right: var(--hersection-right);
+  top: var(--hersection-top);
+  transform: translateY(-50%) translateX(40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 35;
+  opacity: 0;
+}
+
+.her-message {
+  font-size: 0.95em;
   color: #5a1a2e;
-  text-shadow: 0 2px 8px rgba(255,255,255,0.8);
+  font-weight: bold;
+  text-align: center;
   margin: 0;
-  opacity: 0;
-  animation: fadeUp 0.8s ease 1.8s forwards;
+  line-height: 1.5;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8);
+  transition: opacity 0.3s ease;
 }
 
-#reveal p {
-  font-size: 1.1em;
-  color: #7a3050;
+#her-img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  cursor: pointer;
+  border: 3px solid #ff69b4;
+  box-shadow: 0 4px 20px rgba(255, 105, 180, 0.5);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+#her-img:hover {
+  box-shadow: 0 6px 28px rgba(255, 105, 180, 0.8);
+  transform: scale(1.05);
+}
+
+/* ── Driver message ── */
+/* ✅ NO animation here anymore — JS controls the timing */
+#driver-msg {
+  position: absolute;
+  top: 30%;
+  left: 54%;
+  transform: translateX(-50%);
+  font-size: 1.5em;
+  color: #5a1a2e;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.5;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8);
+  z-index: 35;
+  opacity: 0;
+}
+
+/* Together message */
+#together-msg {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.6em;
+  font-weight: bold;
+  color: #5a1a2e;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9);
   margin: 0;
   opacity: 0;
-  animation: fadeUp 0.8s ease 2.2s forwards;
+  white-space: nowrap;
 }
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateY(-50%) translateX(40px); }
+  to   { opacity: 1; transform: translateY(-50%) translateX(0);    }
 }
