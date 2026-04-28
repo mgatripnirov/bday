@@ -34,8 +34,7 @@ btnNo.addEventListener('click', function(e) {
   btnNo.style.left = Math.random() * maxX + 'px';
   btnNo.style.top  = Math.random() * maxY + 'px';
 
-  // 3rd click: show arrow in its original position, just make it big and sarcastic
- if (noClickCount === 3) {
+  if (noClickCount === 3) {
     const arrow = document.querySelector('.arrow');
     arrow.textContent = '⬅️ TROPA ITO PLEASE';
     arrow.style.display = 'block';
@@ -50,9 +49,7 @@ btnNo.addEventListener('click', function(e) {
     arrow.style.transform = 'translateY(-50%)';
     arrow.style.zIndex = 50;
   }
-  
 
-  // 7th click: hide no button, highlight yes, show label
   if (noClickCount === 7) {
     btnNo.style.display = 'none';
     document.querySelector('.arrow').style.display = 'none';
@@ -73,7 +70,6 @@ btnNo.addEventListener('click', function(e) {
 document.getElementById('btn-yes').addEventListener('click', function(e) {
   e.stopPropagation();
 
-  // Hide the no button and arrow immediately
   document.getElementById('btn-no').style.display = 'none';
   document.querySelector('.arrow').style.display = 'none';
 
@@ -99,7 +95,6 @@ document.getElementById('btn-yes').addEventListener('click', function(e) {
   function animate(now) {
     const elapsed = now - startTime;
     const t = Math.min(elapsed / total, 1);
-
     const eased = t < 0.5
       ? 2 * t * t
       : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -126,20 +121,54 @@ document.getElementById('btn-yes').addEventListener('click', function(e) {
         vel['alignmentDistance'].value = 20;
         vel['cohesionDistance'].value = 20;
         vel['freedomFactor'].value = 1;
-
         camera.position.z = 20;
         canvas.style.opacity = 0;
       }, 400);
 
       setTimeout(() => {
         const reveal = document.getElementById('reveal');
+
         const oldCar = reveal.querySelector('.car-emoji');
         const newCar = oldCar.cloneNode(true);
         oldCar.replaceWith(newCar);
 
+        const wrapper = reveal.querySelector('.car-wrapper');
+        const freshWrapper = wrapper.cloneNode(true);
+        wrapper.replaceWith(freshWrapper);
+
+        // ✅ FIX: skip driverAppear animation, jump to final state
+        const driverImgNew = freshWrapper.querySelector('.driver-img');
+        driverImgNew.style.animation = 'none';
+        driverImgNew.style.transform = 'translateX(-50%) scale(0.93)';
+        driverImgNew.style.opacity = '1';
+
+        // ✅ Reset her-section and driver-msg to hidden
+        const herSection = document.getElementById('her-section');
+        const driverMsg = document.getElementById('driver-msg');
+        herSection.style.opacity = '0';
+        herSection.style.transform = 'translateY(-50%) translateX(40px)';
+        if (driverMsg) driverMsg.style.opacity = '0';
+
         reveal.style.transition = 'none';
         reveal.style.opacity = 1;
         reveal.style.pointerEvents = 'all';
+
+        setupHerClick();
+
+        // ✅ Show her-section first, then driver-msg after 1 second
+        setTimeout(() => {
+          herSection.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+          herSection.style.transform = 'translateY(-50%) translateX(0)';
+          herSection.style.opacity = '1';
+
+          if (driverMsg) {
+            driverMsg.style.transition = 'opacity 0.8s ease';
+            driverMsg.style.opacity = '0';
+            setTimeout(() => {
+              driverMsg.style.opacity = '1';
+            }, 1000);
+          }
+        }, 2200);
 
         setTimeout(() => {
           cover.style.transition = 'opacity 1.5s ease';
@@ -169,6 +198,118 @@ document.getElementById('btn-yes').addEventListener('click', function(e) {
 
   requestAnimationFrame(animate);
 });
+
+function setupHerClick() {
+  const herImg = document.getElementById('her-img');
+  if (!herImg) return;
+
+  herImg.addEventListener('click', function () {
+    const herSection   = document.getElementById('her-section');
+    const passengerImg = document.querySelector('.passenger-img');
+    const togetherMsg  = document.getElementById('together-msg');
+
+    // ✅ FIX: fade out her-message if it exists
+    const herMessage = herSection.querySelector('.her-message');
+    if (herMessage) {
+      herMessage.style.transition = 'opacity 0.3s ease';
+      herMessage.style.opacity = '0';
+    }
+
+    // ✅ FIX: fade out driver message on click
+    const driverMsg = document.getElementById('driver-msg');
+    if (driverMsg) {
+      driverMsg.style.transition = 'opacity 0.3s ease';
+      driverMsg.style.opacity = '0';
+    }
+
+    const herRect  = herImg.getBoundingClientRect();
+    const passRect = passengerImg.getBoundingClientRect();
+
+    const herCenterX  = herRect.left  + herRect.width  / 2;
+    const herCenterY  = herRect.top   + herRect.height / 2;
+    const passCenterX = passRect.left + passRect.width  / 2;
+    const passCenterY = passRect.top  + passRect.height / 2;
+
+    const dx    = passCenterX - herCenterX;
+    const dy    = passCenterY - herCenterY;
+    const scale = passRect.width / herRect.width;
+
+    herImg.style.pointerEvents = 'none';
+    herImg.style.transform = 'scale(1)';
+    herSection.style.pointerEvents = 'none';
+
+    setTimeout(() => {
+      herImg.style.transition = 'transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease 0.9s';
+      herImg.style.transform  = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    }, 50);
+
+    setTimeout(() => {
+      herImg.style.opacity     = '0';
+      herSection.style.display = 'none';
+
+      passengerImg.style.transition = 'opacity 0.5s ease';
+      passengerImg.style.opacity    = '1';
+
+      setTimeout(() => {
+        togetherMsg.style.transition = 'opacity 0.8s ease';
+        togetherMsg.style.opacity    = '1';
+
+        setTimeout(() => {
+          crashIntoScreen();
+        }, 2000);
+      }, 400);
+    }, 1150);
+  });
+}
+
+function crashIntoScreen() {
+  const wrapper     = document.querySelector('.car-wrapper');
+  const flash       = document.getElementById('crash-flash');
+  const togetherMsg = document.getElementById('together-msg');
+  const reveal      = document.getElementById('reveal');
+
+  togetherMsg.style.transition = 'opacity 0.3s ease';
+  togetherMsg.style.opacity    = '0';
+
+  setTimeout(() => {
+    wrapper.style.animation = 'none';
+    wrapper.style.transform = 'scale(1)';
+    wrapper.style.transformOrigin = 'center center';
+
+    const duration  = 3000;
+    const startTime = performance.now();
+
+    function growCar(now) {
+      const elapsed = now - startTime;
+      const t       = Math.min(elapsed / duration, 1);
+
+      const eased = t * t * t;
+      const scale = 1 + 29 * eased;
+      wrapper.style.transform = `scale(${scale})`;
+
+      if (t < 1) {
+        requestAnimationFrame(growCar);
+      } else {
+        flash.style.background = '#ffc0cb';
+        flash.style.transition = 'opacity 0.6s ease';
+        flash.style.opacity    = '1';
+
+        setTimeout(() => {
+          // ✅ FIX: hide reveal WHILE flash is still fully opaque
+          reveal.style.transition    = 'opacity 0s';
+          reveal.style.opacity       = '0';
+          reveal.style.pointerEvents = 'none';
+
+          // THEN fade flash out over clean background
+          flash.style.transition = 'opacity 1.2s ease';
+          flash.style.opacity    = '0';
+        }, 600);
+      }
+    }
+
+    requestAnimationFrame(growCar);
+  }, 300);
+}
 
 function gentleShake() {
   const canvas = vantaEffect.renderer.domElement;
