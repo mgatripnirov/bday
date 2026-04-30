@@ -136,13 +136,11 @@ document.getElementById('btn-yes').addEventListener('click', function(e) {
         const freshWrapper = wrapper.cloneNode(true);
         wrapper.replaceWith(freshWrapper);
 
-        // ✅ FIX: skip driverAppear animation, jump to final state
         const driverImgNew = freshWrapper.querySelector('.driver-img');
         driverImgNew.style.animation = 'none';
         driverImgNew.style.transform = 'translateX(-50%) scale(0.93)';
         driverImgNew.style.opacity = '1';
 
-        // ✅ Reset her-section and driver-msg to hidden
         const herSection = document.getElementById('her-section');
         const driverMsg = document.getElementById('driver-msg');
         herSection.style.opacity = '0';
@@ -155,7 +153,6 @@ document.getElementById('btn-yes').addEventListener('click', function(e) {
 
         setupHerClick();
 
-        // ✅ Show her-section first, then driver-msg after 1 second
         setTimeout(() => {
           herSection.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
           herSection.style.transform = 'translateY(-50%) translateX(0)';
@@ -208,14 +205,12 @@ function setupHerClick() {
     const passengerImg = document.querySelector('.passenger-img');
     const togetherMsg  = document.getElementById('together-msg');
 
-    // ✅ FIX: fade out her-message if it exists
     const herMessage = herSection.querySelector('.her-message');
     if (herMessage) {
       herMessage.style.transition = 'opacity 0.3s ease';
       herMessage.style.opacity = '0';
     }
 
-    // ✅ FIX: fade out driver message on click
     const driverMsg = document.getElementById('driver-msg');
     if (driverMsg) {
       driverMsg.style.transition = 'opacity 0.3s ease';
@@ -282,9 +277,8 @@ function crashIntoScreen() {
     function growCar(now) {
       const elapsed = now - startTime;
       const t       = Math.min(elapsed / duration, 1);
-
-      const eased = t * t * t;
-      const scale = 1 + 29 * eased;
+      const eased   = t * t * t;
+      const scale   = 1 + 29 * eased;
       wrapper.style.transform = `scale(${scale})`;
 
       if (t < 1) {
@@ -295,20 +289,81 @@ function crashIntoScreen() {
         flash.style.opacity    = '1';
 
         setTimeout(() => {
-          // ✅ FIX: hide reveal WHILE flash is still fully opaque
           reveal.style.transition    = 'opacity 0s';
           reveal.style.opacity       = '0';
           reveal.style.pointerEvents = 'none';
 
-          // THEN fade flash out over clean background
           flash.style.transition = 'opacity 1.2s ease';
           flash.style.opacity    = '0';
+
+          // Launch memory lane immediately after flash fades
+          startDrivingScene();
+
         }, 600);
       }
     }
 
     requestAnimationFrame(growCar);
   }, 300);
+}
+
+/* ══════════════════════════════════════════════════
+   🚗  DRIVING SCENE — Memory Lane
+   No canvas, no road. The page itself scrolls.
+   car.png is fixed center; photos appear on both sides.
+   ══════════════════════════════════════════════════ */
+function startDrivingScene() {
+  const scene   = document.getElementById('driving-scene');
+  const car     = document.getElementById('drive-car');
+  const hint    = document.getElementById('drive-hint');
+  const memories = scene.querySelectorAll('.memory');
+
+  // Show the scene
+  scene.style.display = 'block';
+
+  // Scroll to top just in case
+  scene.scrollTop = 0;
+
+  // ── Fade hint on first scroll ──
+  scene.addEventListener('scroll', () => {
+    hint.style.opacity = '0';
+  }, { passive: true, once: true });
+
+  // ── Fade-in memories as they enter the viewport ──
+  // Uses the scene's scroll position vs each card's offsetTop
+  function revealMemories() {
+    const viewBottom = scene.scrollTop + scene.clientHeight;
+
+    memories.forEach(card => {
+      // offsetTop is relative to #memory-lane; card is inside it
+      const cardTop = card.offsetTop;
+      if (viewBottom > cardTop + 60) {   // 60px before fully in view
+        card.classList.add('visible');
+      }
+    });
+  }
+
+  scene.addEventListener('scroll', revealMemories, { passive: true });
+  revealMemories(); // check on load (first few might already be visible)
+
+  // ── Slight car tilt while scrolling (feels alive) ──
+  let lastScroll  = 0;
+  let tiltTimeout = null;
+
+  scene.addEventListener('scroll', () => {
+    const delta = scene.scrollTop - lastScroll;
+    lastScroll  = scene.scrollTop;
+
+    // Clamp tilt to ±6 degrees, proportional to scroll speed
+    const tilt = Math.max(-6, Math.min(6, delta * 0.3));
+    car.style.transform = `translate(-50%, -50%) scaleX(-1) rotate(${tilt}deg)`;
+
+    // Snap back to upright after scrolling stops
+    clearTimeout(tiltTimeout);
+    tiltTimeout = setTimeout(() => {
+      car.style.transform = 'translate(-50%, -50%) scaleX(-1) rotate(0deg)';
+    }, 120);
+  }, { passive: true });
 }
 
 function gentleShake() {
