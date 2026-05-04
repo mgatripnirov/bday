@@ -480,3 +480,176 @@ button {
     font-size: 0.8em;
   }
 }
+
+/* ============================================
+   💌 FINAL ROMANTIC CARD STYLES
+   ============================================ */
+
+/* ============================================
+   💌 FINAL ROMANTIC CARD STYLES - NO FLASH FIX
+   ============================================ */
+
+.final-romantic-card {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 380px;
+  background: linear-gradient(145deg, #fff8fa 0%, #ffe4ec 100%);
+  border-radius: 48px 48px 48px 32px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 25px 45px rgba(255, 80, 120, 0.35), 0 0 0 3px rgba(255, 200, 210, 0.8), 0 0 0 8px rgba(255, 220, 230, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 70;
+  will-change: transform; /* Prevents paint flashing */
+  backface-visibility: hidden; /* Prevents flicker */
+  -webkit-backface-visibility: hidden;
+}
+
+/* Remove hover effect that causes flashing */
+.final-romantic-card:hover {
+  /* No transform or scale changes to prevent reflow flicker */
+  box-shadow: 0 25px 45px rgba(255, 80, 120, 0.35), 0 0 0 3px rgba(255, 200, 210, 0.8), 0 0 0 8px rgba(255, 220, 230, 0.5);
+}
+
+/* Smooth scroll behavior */
+#driving-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background: transparent;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Extra bottom padding for smooth stopping */
+#memory-lane::after {
+  content: '';
+  display: block;
+  height: 300px;
+  width: 100%;
+  position: absolute;
+  bottom: -300px;
+  left: 0;
+  pointer-events: none;
+}
+
+.card-decor {
+  position: absolute;
+  font-size: 2rem;
+  top: -15px;
+}
+
+.left-decor {
+  left: 15px;
+  animation: float 3s ease-in-out infinite;
+}
+
+.right-decor {
+  right: 15px;
+  animation: float 3s ease-in-out infinite 0.5s;
+}
+
+.card-heart-icon {
+  font-size: 3.2rem;
+  animation: heartbeat 1.5s ease-in-out infinite;
+  margin-bottom: 12px;
+}
+
+.romantic-greeting {
+  font-size: 1.7rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #d43f6b, #ff85a8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.romantic-message-text {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: #4a2a35;
+  margin-bottom: 16px;
+  text-align: left;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  background: rgba(255, 245, 245, 0.6);
+  padding: 8px 14px;
+  border-radius: 20px;
+}
+
+.highlight-message {
+  background: rgba(255, 220, 230, 0.8);
+  border-left: 4px solid #ff6b8b;
+  font-style: italic;
+  color: #8b2c4a;
+}
+
+.card-signature {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #c94f73;
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 2px dashed #ffb8cc;
+  font-style: italic;
+}
+
+.card-footer-heart {
+  font-size: 1.4rem;
+  letter-spacing: 8px;
+  margin-top: 16px;
+  opacity: 0.8;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Make sure the car stops - disable scroll beyond stop marker */
+.driving-stopped {
+  overflow-y: hidden !important;
+}
+
+/* Responsive for mobile */
+@media (max-width: 500px) {
+  .final-romantic-card {
+    width: 280px;
+    padding: 20px 16px;
+  }
+  .romantic-greeting {
+    font-size: 1.3rem;
+  }
+  .romantic-message-text {
+    font-size: 0.8rem;
+  }
+  .card-signature {
+    font-size: 0.8rem;
+  }
+}
+
+/* Remove old lane-end styles since we replaced it */
+.lane-end-wrapper {
+  display: none;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

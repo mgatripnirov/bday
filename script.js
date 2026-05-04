@@ -296,9 +296,7 @@ function crashIntoScreen() {
           flash.style.transition = 'opacity 1.2s ease';
           flash.style.opacity    = '0';
 
-          // Launch memory lane immediately after flash fades
           startDrivingScene();
-
         }, 600);
       }
     }
@@ -308,64 +306,134 @@ function crashIntoScreen() {
 }
 
 /* ══════════════════════════════════════════════════
-   🚗  DRIVING SCENE — Memory Lane
-   No canvas, no road. The page itself scrolls.
-   car.png is fixed center; photos appear on both sides.
+   🚗  DRIVING SCENE — Fixed scroll with proper bottom stop
    ══════════════════════════════════════════════════ */
+
+let isStopped = false;
+let stopPositionReached = false;
+let scrollTimeout = null;
+
 function startDrivingScene() {
-  const scene   = document.getElementById('driving-scene');
-  const car     = document.getElementById('drive-car');
-  const hint    = document.getElementById('drive-hint');
+  const scene = document.getElementById('driving-scene');
+  const car = document.getElementById('drive-car');
+  const hint = document.getElementById('drive-hint');
   const memories = scene.querySelectorAll('.memory');
-
-  // Show the scene
+  const finalCard = document.querySelector('.final-romantic-card');
+  
+  // INCREASE scrollable height to ensure everything fits + extra space
+  const memoryLane = document.getElementById('memory-lane');
+  if (memoryLane) {
+    memoryLane.style.height = '6200px'; // Extra space for smooth scrolling
+  }
+  
+  // Get the final card and calculate stop at TRUE bottom
+  let stopPosition = 6300; // Default to near bottom
+  
+  if (finalCard) {
+    // Get card's top position
+    const cardTop = parseInt(finalCard.style.top) || 5450;
+    const cardHeight = finalCard.offsetHeight || 500;
+    // Stop AFTER the entire card is visible + extra space
+    stopPosition = cardTop + cardHeight + 200;
+  }
+  
+  console.log("🚗 Stop position set to:", stopPosition);
+  console.log("📏 Total scroll height:", scene.scrollHeight);
+  
   scene.style.display = 'block';
-
-  // Scroll to top just in case
   scene.scrollTop = 0;
+  
+  isStopped = false;
+  stopPositionReached = false;
 
-  // ── Fade hint on first scroll ──
+  // Fade hint on first scroll
   scene.addEventListener('scroll', () => {
     hint.style.opacity = '0';
   }, { passive: true, once: true });
 
-  // ── Fade-in memories as they enter the viewport ──
-  // Uses the scene's scroll position vs each card's offsetTop
+  // Fade-in memories as they enter viewport
   function revealMemories() {
     const viewBottom = scene.scrollTop + scene.clientHeight;
-
     memories.forEach(card => {
-      // offsetTop is relative to #memory-lane; card is inside it
       const cardTop = card.offsetTop;
-      if (viewBottom > cardTop + 60) {   // 60px before fully in view
+      if (viewBottom > cardTop + 60) {
         card.classList.add('visible');
       }
     });
   }
 
-  scene.addEventListener('scroll', revealMemories, { passive: true });
-  revealMemories(); // check on load (first few might already be visible)
+  // CAR STOP FUNCTION - Only stop at true bottom, not earlier
+  function enforceStop() {
+    const currentScroll = scene.scrollTop;
+    const maxScroll = scene.scrollHeight - scene.clientHeight;
+    
+    // Only stop when we reach the actual bottom (or very close)
+    if (!stopPositionReached && currentScroll >= maxScroll - 50) {
+      stopPositionReached = true;
+      isStopped = true;
+      
+      // Lock at bottom
+      scene.scrollTop = maxScroll;
+      
+      // Add gentle visual feedback
+      car.style.transform = `translate(-50%, -50%) scaleX(-1) rotate(-2deg)`;
+      setTimeout(() => {
+        car.style.transform = `translate(-50%, -50%) scaleX(-1) rotate(0deg)`;
+      }, 200);
+      
+      // Show completion message
+      hint.style.opacity = '0';
+      hint.textContent = "💖 You've reached the end of our journey. Thank you! 💖";
+      setTimeout(() => {
+        hint.style.opacity = '0.9';
+        setTimeout(() => {
+          hint.style.opacity = '0';
+        }, 5000);
+      }, 500);
+    }
+    
+    // If reached bottom, prevent overscroll
+    if (stopPositionReached && scene.scrollTop > maxScroll) {
+      scene.scrollTop = maxScroll;
+    }
+  }
 
-  // ── Slight car tilt while scrolling (feels alive) ──
-  let lastScroll  = 0;
+  // Car tilt while scrolling
+  let lastScroll = 0;
   let tiltTimeout = null;
-
-  scene.addEventListener('scroll', () => {
+  
+  function handleScroll() {
+    // Enforce stop at bottom
+    enforceStop();
+    
+    // Don't apply tilt if stopped at bottom
+    if (stopPositionReached) {
+      car.style.transform = `translate(-50%, -50%) scaleX(-1) rotate(0deg)`;
+      return;
+    }
+    
     const delta = scene.scrollTop - lastScroll;
-    lastScroll  = scene.scrollTop;
-
-    // Clamp tilt to ±6 degrees, proportional to scroll speed
-    const tilt = Math.max(-6, Math.min(6, delta * 0.3));
+    lastScroll = scene.scrollTop;
+    
+    const tilt = Math.max(-4, Math.min(4, delta * 0.2));
     car.style.transform = `translate(-50%, -50%) scaleX(-1) rotate(${tilt}deg)`;
-
-    // Snap back to upright after scrolling stops
+    
     clearTimeout(tiltTimeout);
     tiltTimeout = setTimeout(() => {
-      car.style.transform = 'translate(-50%, -50%) scaleX(-1) rotate(0deg)';
+      if (!stopPositionReached) {
+        car.style.transform = 'translate(-50%, -50%) scaleX(-1) rotate(0deg)';
+      }
     }, 120);
-  }, { passive: true });
+  }
+  
+  scene.addEventListener('scroll', handleScroll, { passive: false });
+  scene.addEventListener('scroll', revealMemories, { passive: true });
+  
+  // Initial reveal
+  setTimeout(revealMemories, 100);
+  
+  console.log("✅ Driving scene started - scroll freely until bottom!");
 }
-
 function gentleShake() {
   const canvas = vantaEffect.renderer.domElement;
   let s = 0;
