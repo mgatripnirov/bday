@@ -306,12 +306,14 @@ function crashIntoScreen() {
 }
 
 /* ══════════════════════════════════════════════════
-   🚗  DRIVING SCENE — Fixed scroll with proper bottom stop
+   🚗  DRIVING SCENE — Fixed scroll with proper bottom stop + AUDIO
    ══════════════════════════════════════════════════ */
 
 let isStopped = false;
 let stopPositionReached = false;
 let scrollTimeout = null;
+let audioPlayed = false;
+let musicNoteElement = null;
 
 function startDrivingScene() {
   const scene = document.getElementById('driving-scene');
@@ -320,21 +322,24 @@ function startDrivingScene() {
   const memories = scene.querySelectorAll('.memory');
   const finalCard = document.querySelector('.final-romantic-card');
   
+  // Reset audio flag when scene starts
+  audioPlayed = false;
+  
   // INCREASE scrollable height to ensure everything fits + extra space
   const memoryLane = document.getElementById('memory-lane');
   if (memoryLane) {
-    memoryLane.style.height = '6200px'; // Extra space for smooth scrolling
+    memoryLane.style.height = '6200px'; // Adjust this number for more/less scrolling
   }
   
   // Get the final card and calculate stop at TRUE bottom
-  let stopPosition = 6300; // Default to near bottom
+  let stopPosition = 6000; // Default to near bottom
   
   if (finalCard) {
     // Get card's top position
     const cardTop = parseInt(finalCard.style.top) || 5450;
     const cardHeight = finalCard.offsetHeight || 500;
     // Stop AFTER the entire card is visible + extra space
-    stopPosition = cardTop + cardHeight + 200;
+    stopPosition = cardTop + cardHeight + 200; // Adjust +200 for earlier/later stop
   }
   
   console.log("🚗 Stop position set to:", stopPosition);
@@ -362,6 +367,61 @@ function startDrivingScene() {
     });
   }
 
+  // Function to play YouTube music
+  function playYouTubeMusic() {
+    if (audioPlayed) return;
+    audioPlayed = true;
+    
+    // Create container for YouTube player
+    const playerDiv = document.createElement('div');
+    playerDiv.id = 'youtube-player';
+    document.body.appendChild(playerDiv);
+    
+    // YouTube video ID from your link: Vd4E1wBRhdA
+    const videoId = 'Vd4E1wBRhdA';
+    
+    // Create iframe with autoplay
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1&showinfo=0&rel=0`;
+    iframe.width = '1';
+    iframe.height = '1';
+    iframe.frameBorder = '0';
+    iframe.allow = 'autoplay';
+    iframe.setAttribute('allow', 'autoplay');
+    playerDiv.appendChild(iframe);
+    
+    // Create floating music note
+    musicNoteElement = document.createElement('div');
+    musicNoteElement.className = 'music-note';
+    musicNoteElement.innerHTML = '🎵';
+    musicNoteElement.title = 'Music is playing! Click to mute/unmute';
+    document.body.appendChild(musicNoteElement);
+    
+    // Toggle mute on click
+    let isMuted = false;
+    musicNoteElement.addEventListener('click', () => {
+      isMuted = !isMuted;
+      iframe.contentWindow.postMessage(JSON.stringify({
+        event: 'command',
+        func: isMuted ? 'mute' : 'unMute'
+      }), '*');
+      musicNoteElement.innerHTML = isMuted ? '🔇' : '🎵';
+      musicNoteElement.style.animation = isMuted ? 'none' : 'musicPulse 1s ease-in-out infinite';
+    });
+    
+    // Remove music note after 10 seconds (optional)
+    setTimeout(() => {
+      if (musicNoteElement) {
+        musicNoteElement.style.opacity = '0';
+        setTimeout(() => {
+          if (musicNoteElement) musicNoteElement.remove();
+        }, 1000);
+      }
+    }, 10000);
+    
+    console.log("🎵 YouTube music started!");
+  }
+
   // CAR STOP FUNCTION - Only stop at true bottom, not earlier
   function enforceStop() {
     const currentScroll = scene.scrollTop;
@@ -371,6 +431,9 @@ function startDrivingScene() {
     if (!stopPositionReached && currentScroll >= maxScroll - 50) {
       stopPositionReached = true;
       isStopped = true;
+      
+      // 🎵 PLAY MUSIC WHEN REACHING BOTTOM 🎵
+      playYouTubeMusic();
       
       // Lock at bottom
       scene.scrollTop = maxScroll;
@@ -383,7 +446,7 @@ function startDrivingScene() {
       
       // Show completion message
       hint.style.opacity = '0';
-      hint.textContent = "💖 You've reached the end of our journey. Thank you! 💖";
+      hint.textContent = "🎵 Music is playing! 🎵 💖 You've reached the end of our journey. Thank you! 💖";
       setTimeout(() => {
         hint.style.opacity = '0.9';
         setTimeout(() => {
@@ -434,6 +497,7 @@ function startDrivingScene() {
   
   console.log("✅ Driving scene started - scroll freely until bottom!");
 }
+
 function gentleShake() {
   const canvas = vantaEffect.renderer.domElement;
   let s = 0;
