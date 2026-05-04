@@ -32,7 +32,7 @@ btnNo.addEventListener('click', function(e) {
   const maxX = window.innerWidth - 120;
   const maxY = window.innerHeight - 60;
   btnNo.style.left = Math.random() * maxX + 'px';
-  btnNo.style.top  = Math.random() * maxY + 'px';
+  btnNo.style.top = Math.random() * maxY + 'px';
 
   if (noClickCount === 3) {
     const arrow = document.querySelector('.arrow');
@@ -204,17 +204,18 @@ function setupHerClick() {
     const herSection   = document.getElementById('her-section');
     const passengerImg = document.querySelector('.passenger-img');
     const togetherMsg  = document.getElementById('together-msg');
+    const driverMsg    = document.getElementById('driver-msg');
+
+    // FORCE HIDE driver message immediately
+    if (driverMsg) {
+      driverMsg.style.display = 'none';  // Direct hide instead of fade
+      driverMsg.style.opacity = '0';
+    }
 
     const herMessage = herSection.querySelector('.her-message');
     if (herMessage) {
       herMessage.style.transition = 'opacity 0.3s ease';
       herMessage.style.opacity = '0';
-    }
-
-    const driverMsg = document.getElementById('driver-msg');
-    if (driverMsg) {
-      driverMsg.style.transition = 'opacity 0.3s ease';
-      driverMsg.style.opacity = '0';
     }
 
     const herRect  = herImg.getBoundingClientRect();
@@ -258,27 +259,27 @@ function setupHerClick() {
 }
 
 function crashIntoScreen() {
-  const wrapper     = document.querySelector('.car-wrapper');
-  const flash       = document.getElementById('crash-flash');
+  const wrapper = document.querySelector('.car-wrapper');
+  const flash = document.getElementById('crash-flash');
   const togetherMsg = document.getElementById('together-msg');
-  const reveal      = document.getElementById('reveal');
+  const reveal = document.getElementById('reveal');
 
   togetherMsg.style.transition = 'opacity 0.3s ease';
-  togetherMsg.style.opacity    = '0';
+  togetherMsg.style.opacity = '0';
 
   setTimeout(() => {
     wrapper.style.animation = 'none';
     wrapper.style.transform = 'scale(1)';
     wrapper.style.transformOrigin = 'center center';
 
-    const duration  = 3000;
+    const duration = 3000;
     const startTime = performance.now();
 
     function growCar(now) {
       const elapsed = now - startTime;
-      const t       = Math.min(elapsed / duration, 1);
-      const eased   = t * t * t;
-      const scale   = 1 + 29 * eased;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = t * t * t;
+      const scale = 1 + 29 * eased;
       wrapper.style.transform = `scale(${scale})`;
 
       if (t < 1) {
@@ -286,15 +287,15 @@ function crashIntoScreen() {
       } else {
         flash.style.background = '#ffc0cb';
         flash.style.transition = 'opacity 0.6s ease';
-        flash.style.opacity    = '1';
+        flash.style.opacity = '1';
 
         setTimeout(() => {
-          reveal.style.transition    = 'opacity 0s';
-          reveal.style.opacity       = '0';
+          reveal.style.transition = 'opacity 0s';
+          reveal.style.opacity = '0';
           reveal.style.pointerEvents = 'none';
 
           flash.style.transition = 'opacity 1.2s ease';
-          flash.style.opacity    = '0';
+          flash.style.opacity = '0';
 
           startDrivingScene();
         }, 600);
@@ -306,14 +307,15 @@ function crashIntoScreen() {
 }
 
 /* ══════════════════════════════════════════════════
-   🚗  DRIVING SCENE — Fixed scroll with proper bottom stop + AUDIO
+   🚗 DRIVING SCENE with MP3 AUDIO & VOLUME CONTROL
    ══════════════════════════════════════════════════ */
 
 let isStopped = false;
 let stopPositionReached = false;
-let scrollTimeout = null;
 let audioPlayed = false;
+let bgMusic = null;
 let musicNoteElement = null;
+let volumeControl = null;
 
 function startDrivingScene() {
   const scene = document.getElementById('driving-scene');
@@ -321,33 +323,31 @@ function startDrivingScene() {
   const hint = document.getElementById('drive-hint');
   const memories = scene.querySelectorAll('.memory');
   const finalCard = document.querySelector('.final-romantic-card');
-  
+
   // Reset audio flag when scene starts
   audioPlayed = false;
-  
-  // INCREASE scrollable height to ensure everything fits + extra space
+
+  // Set scrollable height
   const memoryLane = document.getElementById('memory-lane');
   if (memoryLane) {
-    memoryLane.style.height = '6200px'; // Adjust this number for more/less scrolling
+    memoryLane.style.height = '6200px';
   }
-  
-  // Get the final card and calculate stop at TRUE bottom
-  let stopPosition = 6000; // Default to near bottom
-  
+
+  // Get stop position
+  let stopPosition = 6000;
+
   if (finalCard) {
-    // Get card's top position
     const cardTop = parseInt(finalCard.style.top) || 5450;
     const cardHeight = finalCard.offsetHeight || 500;
-    // Stop AFTER the entire card is visible + extra space
-    stopPosition = cardTop + cardHeight + 200; // Adjust +200 for earlier/later stop
+    stopPosition = cardTop + cardHeight + 200;
   }
-  
+
   console.log("🚗 Stop position set to:", stopPosition);
   console.log("📏 Total scroll height:", scene.scrollHeight);
-  
+
   scene.style.display = 'block';
   scene.scrollTop = 0;
-  
+
   isStopped = false;
   stopPositionReached = false;
 
@@ -356,7 +356,7 @@ function startDrivingScene() {
     hint.style.opacity = '0';
   }, { passive: true, once: true });
 
-  // Fade-in memories as they enter viewport
+  // Fade-in memories
   function revealMemories() {
     const viewBottom = scene.scrollTop + scene.clientHeight;
     memories.forEach(card => {
@@ -367,95 +367,157 @@ function startDrivingScene() {
     });
   }
 
-  // Function to play YouTube music
-  function playYouTubeMusic() {
+  // 🎵 FUNCTION TO PLAY LOCAL MP3 MUSIC 🎵
+  function playLocalMusic() {
     if (audioPlayed) return;
     audioPlayed = true;
-    
-    // Create container for YouTube player
-    const playerDiv = document.createElement('div');
-    playerDiv.id = 'youtube-player';
-    document.body.appendChild(playerDiv);
-    
-    // YouTube video ID from your link: Vd4E1wBRhdA
-    const videoId = 'Vd4E1wBRhdA';
-    
-    // Create iframe with autoplay
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1&showinfo=0&rel=0`;
-    iframe.width = '1';
-    iframe.height = '1';
-    iframe.frameBorder = '0';
-    iframe.allow = 'autoplay';
-    iframe.setAttribute('allow', 'autoplay');
-    playerDiv.appendChild(iframe);
-    
+
+    // Create audio element
+    bgMusic = new Audio();
+
+    // IMPORTANT: Change this to match your MP3 file location!
+    // If your MP3 is in "music" folder: bgMusic.src = 'music/song.mp3';
+    // If your MP3 is in same folder: bgMusic.src = 'song.mp3';
+    // If your MP3 has a different name, change it here:
+    bgMusic.src = 'music/song.mp3'; // <-- CHANGE THIS TO YOUR FILE PATH
+
+    bgMusic.loop = true; // Loop the music
+    bgMusic.volume = 0.5; // Start at 50% volume
+
+    // Try to play
+    bgMusic.play().catch(error => {
+      console.log("Auto-play blocked by browser");
+      // Show message to click anywhere
+      hint.textContent = "🎵 Click anywhere to play music 🎵";
+      hint.style.opacity = '1';
+      
+      const playOnClick = () => {
+        bgMusic.play();
+        hint.style.opacity = '0';
+        scene.removeEventListener('click', playOnClick);
+        document.removeEventListener('click', playOnClick);
+      };
+      scene.addEventListener('click', playOnClick);
+      document.addEventListener('click', playOnClick);
+    });
+
+    // Create volume control
+    createVolumeControl();
+
     // Create floating music note
     musicNoteElement = document.createElement('div');
     musicNoteElement.className = 'music-note';
     musicNoteElement.innerHTML = '🎵';
-    musicNoteElement.title = 'Music is playing! Click to mute/unmute';
+    musicNoteElement.title = 'Click for volume control';
     document.body.appendChild(musicNoteElement);
-    
-    // Toggle mute on click
-    let isMuted = false;
+
+    // Show volume control when music note is clicked
     musicNoteElement.addEventListener('click', () => {
-      isMuted = !isMuted;
-      iframe.contentWindow.postMessage(JSON.stringify({
-        event: 'command',
-        func: isMuted ? 'mute' : 'unMute'
-      }), '*');
-      musicNoteElement.innerHTML = isMuted ? '🔇' : '🎵';
-      musicNoteElement.style.animation = isMuted ? 'none' : 'musicPulse 1s ease-in-out infinite';
-    });
-    
-    // Remove music note after 10 seconds (optional)
-    setTimeout(() => {
-      if (musicNoteElement) {
-        musicNoteElement.style.opacity = '0';
+      if (volumeControl) {
+        volumeControl.classList.toggle('visible');
         setTimeout(() => {
-          if (musicNoteElement) musicNoteElement.remove();
-        }, 1000);
+          if (volumeControl) volumeControl.classList.remove('visible');
+        }, 3000);
       }
-    }, 10000);
-    
-    console.log("🎵 YouTube music started!");
+    });
+
+    console.log("🎵 Local MP3 music started!");
   }
 
-  // CAR STOP FUNCTION - Only stop at true bottom, not earlier
+  // 🔊 FUNCTION TO CREATE VOLUME CONTROL SLIDER
+  function createVolumeControl() {
+    if (volumeControl) return;
+
+    // Create volume control container
+    volumeControl = document.createElement('div');
+    volumeControl.className = 'volume-control';
+    volumeControl.innerHTML = `
+      <div class="volume-icon">🔊</div>
+      <input type="range" id="volume-slider" min="0" max="100" value="50" class="volume-slider">
+      <div class="volume-percent">50%</div>
+    `;
+    document.body.appendChild(volumeControl);
+
+    const slider = document.getElementById('volume-slider');
+    const percentDisplay = volumeControl.querySelector('.volume-percent');
+    const icon = volumeControl.querySelector('.volume-icon');
+
+    slider.addEventListener('input', function(e) {
+      const volume = e.target.value / 100;
+      percentDisplay.textContent = e.target.value + '%';
+      if (bgMusic) {
+        bgMusic.volume = volume;
+      }
+
+      // Update icon based on volume
+      if (e.target.value == 0) {
+        icon.textContent = '🔇';
+      } else if (e.target.value < 30) {
+        icon.textContent = '🔈';
+      } else if (e.target.value < 70) {
+        icon.textContent = '🔉';
+      } else {
+        icon.textContent = '🔊';
+      }
+    });
+
+    // Auto-hide volume control after 3 seconds
+    let hideTimeout;
+    const showVolumeControl = () => {
+      volumeControl.classList.add('visible');
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        volumeControl.classList.remove('visible');
+      }, 3000);
+    };
+
+    volumeControl.addEventListener('mouseenter', () => {
+      clearTimeout(hideTimeout);
+    });
+
+    volumeControl.addEventListener('mouseleave', () => {
+      hideTimeout = setTimeout(() => {
+        volumeControl.classList.remove('visible');
+      }, 3000);
+    });
+
+    showVolumeControl();
+  }
+
+  // CAR STOP FUNCTION
   function enforceStop() {
     const currentScroll = scene.scrollTop;
     const maxScroll = scene.scrollHeight - scene.clientHeight;
-    
-    // Only stop when we reach the actual bottom (or very close)
+
+    // Only stop when we reach the actual bottom
     if (!stopPositionReached && currentScroll >= maxScroll - 50) {
       stopPositionReached = true;
       isStopped = true;
-      
-      // 🎵 PLAY MUSIC WHEN REACHING BOTTOM 🎵
-      playYouTubeMusic();
-      
+
+      // 🎵 PLAY MP3 MUSIC WHEN REACHING BOTTOM 🎵
+      playLocalMusic();
+
       // Lock at bottom
       scene.scrollTop = maxScroll;
-      
+
       // Add gentle visual feedback
       car.style.transform = `translate(-50%, -50%) scaleX(-1) rotate(-2deg)`;
       setTimeout(() => {
         car.style.transform = `translate(-50%, -50%) scaleX(-1) rotate(0deg)`;
       }, 200);
-      
+
       // Show completion message
       hint.style.opacity = '0';
-      hint.textContent = "🎵 Music is playing! 🎵 💖 You've reached the end of our journey. Thank you! 💖";
+      hint.textContent = "🎵 Music is playing! Click the 🎵 note for volume control! 💖";
       setTimeout(() => {
         hint.style.opacity = '0.9';
         setTimeout(() => {
           hint.style.opacity = '0';
-        }, 5000);
+        }, 6000);
       }, 500);
     }
-    
-    // If reached bottom, prevent overscroll
+
+    // Prevent overscroll
     if (stopPositionReached && scene.scrollTop > maxScroll) {
       scene.scrollTop = maxScroll;
     }
@@ -464,23 +526,21 @@ function startDrivingScene() {
   // Car tilt while scrolling
   let lastScroll = 0;
   let tiltTimeout = null;
-  
+
   function handleScroll() {
-    // Enforce stop at bottom
     enforceStop();
-    
-    // Don't apply tilt if stopped at bottom
+
     if (stopPositionReached) {
       car.style.transform = `translate(-50%, -50%) scaleX(-1) rotate(0deg)`;
       return;
     }
-    
+
     const delta = scene.scrollTop - lastScroll;
     lastScroll = scene.scrollTop;
-    
+
     const tilt = Math.max(-4, Math.min(4, delta * 0.2));
     car.style.transform = `translate(-50%, -50%) scaleX(-1) rotate(${tilt}deg)`;
-    
+
     clearTimeout(tiltTimeout);
     tiltTimeout = setTimeout(() => {
       if (!stopPositionReached) {
@@ -488,13 +548,13 @@ function startDrivingScene() {
       }
     }, 120);
   }
-  
+
   scene.addEventListener('scroll', handleScroll, { passive: false });
   scene.addEventListener('scroll', revealMemories, { passive: true });
-  
+
   // Initial reveal
   setTimeout(revealMemories, 100);
-  
+
   console.log("✅ Driving scene started - scroll freely until bottom!");
 }
 

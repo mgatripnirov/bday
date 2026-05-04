@@ -122,7 +122,7 @@ button {
   50%       { transform: translateY(-50%) translateX(-15px); }
 }
 
-/* ── Dark cover ── */
+/* Dark cover */
 #cover {
   position: fixed;
   inset: 0;
@@ -133,7 +133,7 @@ button {
   transition: opacity 0.4s ease;
 }
 
-/* ── Crash flash overlay ── */
+/* Crash flash overlay */
 #crash-flash {
   position: fixed;
   inset: 0;
@@ -143,7 +143,7 @@ button {
   pointer-events: none;
 }
 
-/* ── Final reveal ── */
+/* Final reveal */
 #reveal {
   position: fixed;
   inset: 0;
@@ -158,9 +158,7 @@ button {
   transition: opacity 1.5s ease;
 }
 
-/* ──────────────────────────────────────────
-   🎛️  DRIVER IMAGE COORDINATES
-   ────────────────────────────────────────── */
+/* Driver image coordinates */
 :root {
   --driver-top: 30%;
   --driver-left: 59%;
@@ -331,11 +329,7 @@ button {
   to   { opacity: 1; transform: translateY(-50%) translateX(0);    }
 }
 
-/* ══════════════════════════════════════════
-   🚗  DRIVING SCENE — Memory Lane
-   ══════════════════════════════════════════ */
-
-/* The scene fills the viewport and is scrollable */
+/* Driving Scene - Memory Lane */
 #driving-scene {
   position: fixed;
   inset: 0;
@@ -343,19 +337,16 @@ button {
   display: none;
   overflow-y: scroll;
   overflow-x: hidden;
-  background: transparent;   /* Vanta birds show through */
+  background: transparent;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Tall strip that defines total scroll height.
-   Add more memories → increase this height too. */
 #memory-lane {
   position: relative;
   width: 100%;
-  height: 5800px;  /* Increased to fit larger gaps */
+  height: 5800px;
 }
 
-/* Section title at the very top */
 .lane-title {
   position: absolute;
   top: 60px;
@@ -370,21 +361,6 @@ button {
   text-align: center;
 }
 
-/* End-of-lane message */
-.lane-end {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #5a1a2e;
-  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.85);
-  white-space: nowrap;
-  margin: 0;
-  text-align: center;
-}
-
-/* ── Memory photo cards ── */
 .memory {
   position: absolute;
   width: 260px;
@@ -393,7 +369,6 @@ button {
   padding: 8px 8px 12px;
   box-shadow: 0 6px 24px rgba(180, 60, 100, 0.25);
   text-align: center;
-  /* Fade in when JS adds .visible class */
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.6s ease, transform 0.6s ease;
@@ -404,7 +379,6 @@ button {
   transform: translateY(0);
 }
 
-/* Left memories hug the left side, right hug the right */
 .memory.left  { left:  18px; }
 .memory.right { right: 18px; }
 
@@ -425,7 +399,6 @@ button {
   line-height: 1.4;
 }
 
-/* ── Fixed car in the viewport center ── */
 #drive-car {
   position: fixed;
   top: 50%;
@@ -438,7 +411,6 @@ button {
   transition: transform 0.15s ease-out;
 }
 
-/* ── Scroll hint ── */
 #drive-hint {
   position: fixed;
   bottom: 44px;
@@ -457,7 +429,6 @@ button {
   pointer-events: none;
 }
 
-/* ── Smaller screens ── */
 @media (max-width: 500px) {
   .memory       { width: 180px; }
   .memory.left  { left:  8px; }
@@ -481,14 +452,7 @@ button {
   }
 }
 
-/* ============================================
-   💌 FINAL ROMANTIC CARD STYLES
-   ============================================ */
-
-/* ============================================
-   💌 FINAL ROMANTIC CARD STYLES - NO FLASH FIX
-   ============================================ */
-
+/* Final Romantic Card Styles */
 .final-romantic-card {
   position: absolute;
   left: 50%;
@@ -501,40 +465,8 @@ button {
   box-shadow: 0 25px 45px rgba(255, 80, 120, 0.35), 0 0 0 3px rgba(255, 200, 210, 0.8), 0 0 0 8px rgba(255, 220, 230, 0.5);
   backdrop-filter: blur(4px);
   z-index: 70;
-  will-change: transform; /* Prevents paint flashing */
-  backface-visibility: hidden; /* Prevents flicker */
-  -webkit-backface-visibility: hidden;
-}
-
-/* Remove hover effect that causes flashing */
-.final-romantic-card:hover {
-  /* No transform or scale changes to prevent reflow flicker */
-  box-shadow: 0 25px 45px rgba(255, 80, 120, 0.35), 0 0 0 3px rgba(255, 200, 210, 0.8), 0 0 0 8px rgba(255, 220, 230, 0.5);
-}
-
-/* Smooth scroll behavior */
-#driving-scene {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: none;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  background: transparent;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-}
-
-/* Extra bottom padding for smooth stopping */
-#memory-lane::after {
-  content: '';
-  display: block;
-  height: 300px;
-  width: 100%;
-  position: absolute;
-  bottom: -300px;
-  left: 0;
-  pointer-events: none;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .card-decor {
@@ -616,12 +548,10 @@ button {
   50% { transform: translateY(-8px); }
 }
 
-/* Make sure the car stops - disable scroll beyond stop marker */
 .driving-stopped {
   overflow-y: hidden !important;
 }
 
-/* Responsive for mobile */
 @media (max-width: 500px) {
   .final-romantic-card {
     width: 280px;
@@ -638,11 +568,6 @@ button {
   }
 }
 
-/* Remove old lane-end styles since we replaced it */
-.lane-end-wrapper {
-  display: none;
-}
-
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -653,12 +578,85 @@ button {
     transform: translateX(-50%) translateY(0);
   }
 }
-/* Audio music note animation */
-@keyframes musicPulse {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.2); opacity: 1; }
+
+/* ============================================
+   🎵 VOLUME CONTROL STYLES (FIXED)
+   ============================================ */
+
+.volume-control {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 12px 20px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateX(100px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
 }
 
+.volume-control.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+.volume-icon {
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.volume-icon:hover {
+  transform: scale(1.1);
+}
+
+.volume-slider {
+  width: 100px;
+  height: 4px;
+  -webkit-appearance: none;
+  background: linear-gradient(90deg, #ff69b4 50%, #ddd 50%);
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #ff69b4;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
+  transition: transform 0.2s;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #ff3366;
+}
+
+.volume-percent {
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 35px;
+  text-align: center;
+  font-family: monospace;
+}
+
+/* Music Note Button - FIXED */
 .music-note {
   position: fixed;
   bottom: 20px;
@@ -667,30 +665,27 @@ button {
   z-index: 9999;
   animation: musicPulse 1s ease-in-out infinite;
   cursor: pointer;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 105, 180, 0.8);
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(5px);
   transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  color: white;
 }
 
 .music-note:hover {
-  transform: scale(1.1);
-  background: rgba(255,255,255,0.8);
+  transform: scale(1.15);
+  background: rgba(255, 105, 180, 1);
+  box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
 }
 
-/* Hidden YouTube player */
-#youtube-player {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 9998;
+@keyframes musicPulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
 }
+
